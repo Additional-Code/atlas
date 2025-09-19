@@ -44,9 +44,25 @@ Atlas is a batteries-included Go service template optimised for developer experi
    ```
 
 5. **Start workers (Kafka consumers/jobs)**
-   ```bash
-   go run main.go worker run
-   ```
+ ```bash
+ go run main.go worker run
+ ```
+
+## Docker
+
+Build and run the containerised service:
+
+```bash
+docker build -t atlas:latest .
+docker run --env-file .env -p 8080:8080 atlas:latest run
+```
+
+To run migrations or workers inside the container, override the command:
+
+```bash
+docker run --env-file .env atlas:latest migrate up
+docker run --env-file .env atlas:latest worker run
+```
 
 ## CLI Reference
 
