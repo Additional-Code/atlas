@@ -74,9 +74,8 @@ func (s *Service) Get(ctx context.Context, id int64) (*entity.Order, error) {
 	if order, err := s.getFromCache(ctx, id); err == nil {
 		return order, nil
 	} else if err != nil && !errors.Is(err, cache.ErrCacheMiss) {
-		if s.logger != nil {
-			s.logger.Warn("orders cache read failed", zap.Int64("id", id), zap.Error(err))
-		}
+		s.logger.Warn("orders cache read failed", zap.Int64("id", id), zap.Error(err))
+
 	}
 
 	order, err := s.repo.GetByID(ctx, id)
@@ -90,9 +89,7 @@ func (s *Service) Get(ctx context.Context, id int64) (*entity.Order, error) {
 	}
 
 	if err := s.storeInCache(ctx, order); err != nil {
-		if s.logger != nil {
-			s.logger.Warn("orders cache write failed", zap.Int64("id", id), zap.Error(err))
-		}
+		s.logger.Warn("orders cache write failed", zap.Int64("id", id), zap.Error(err))
 	}
 
 	return order, nil
@@ -118,9 +115,7 @@ func (s *Service) Create(ctx context.Context, order *entity.Order) error {
 	}
 
 	if err := s.storeInCache(ctx, order); err != nil {
-		if s.logger != nil {
-			s.logger.Warn("orders cache write failed", zap.Int64("id", order.ID), zap.Error(err))
-		}
+		s.logger.Warn("orders cache write failed", zap.Int64("id", order.ID), zap.Error(err))
 	}
 
 	s.publishOrderCreated(ctx, order)
@@ -139,15 +134,12 @@ func (s *Service) publishOrderCreated(ctx context.Context, order *entity.Order) 
 	}
 	payload, err := json.Marshal(event)
 	if err != nil {
-		if s.logger != nil {
-			s.logger.Error("marshal order created", zap.Error(err))
-		}
+		s.logger.Error("marshal order created", zap.Error(err))
 		return
 	}
 	if err := s.publisher.Publish(ctx, []byte(fmt.Sprintf("order-%d", order.ID)), payload); err != nil {
-		if s.logger != nil {
-			s.logger.Error("publish order created", zap.Error(err))
-		}
+		s.logger.Error("publish order created", zap.Error(err))
+
 	}
 }
 

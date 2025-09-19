@@ -39,20 +39,18 @@ func NewOrderCreatedHandler(logger *zap.Logger, cfg config.Config) worker.Handle
 
 		var event ordersvc.OrderCreatedEvent
 		if err := json.Unmarshal(msg.Value, &event); err != nil {
-			if logger != nil {
-				logger.Error("failed to decode order created", zap.Error(err))
-			}
+			logger.Error("failed to decode order created", zap.Error(err))
+
 			span.RecordError(err)
 			span.SetStatus(codes.Error, "decode error")
 			return err
 		}
-		if logger != nil {
-			logger.Info("order created event processed",
-				zap.Int64("id", event.ID),
-				zap.String("number", event.Number),
-				zap.String("status", event.Status),
-			)
-		}
+		logger.Info("order created event processed",
+			zap.Int64("id", event.ID),
+			zap.String("number", event.Number),
+			zap.String("status", event.Status),
+		)
+
 		return nil
 	}
 

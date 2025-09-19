@@ -70,15 +70,13 @@ var Module = fx.Options(
 
 func (e *Engine) start(ctx context.Context) error {
 	if !e.cfg.Messaging.Enabled || !e.cfg.Messaging.Workers.Enabled {
-		if e.logger != nil {
-			e.logger.Info("worker engine disabled")
-		}
+		e.logger.Info("worker engine disabled")
+
 		return nil
 	}
 	if len(e.registrations) == 0 {
-		if e.logger != nil {
-			e.logger.Info("worker engine has no handlers; skipping")
-		}
+		e.logger.Info("worker engine has no handlers; skipping")
+
 		return nil
 	}
 
@@ -100,9 +98,8 @@ func (e *Engine) start(ctx context.Context) error {
 		}()
 	}
 
-	if e.logger != nil {
-		e.logger.Info("worker engine started", zap.Int("workers", concurrency))
-	}
+	e.logger.Info("worker engine started", zap.Int("workers", concurrency))
+
 	return nil
 }
 
@@ -123,9 +120,8 @@ func (e *Engine) stop(ctx context.Context) error {
 	case <-ctx.Done():
 		return ctx.Err()
 	case <-done:
-		if e.logger != nil {
-			e.logger.Info("worker engine stopped")
-		}
+		e.logger.Info("worker engine stopped")
+
 		return nil
 	}
 }
@@ -140,14 +136,13 @@ func (e *Engine) consumeLoop(ctx context.Context, workerID int) {
 		err := e.client.Consume(ctx, func(msgCtx context.Context, msg messaging.Message) error {
 			handler, ok := e.registrations[msg.Topic]
 			if !ok {
-				if e.logger != nil {
-					e.logger.Warn("no handler for topic", zap.String("topic", msg.Topic))
-				}
+				e.logger.Warn("no handler for topic", zap.String("topic", msg.Topic))
+
 				return nil
 			}
-			if e.logger != nil {
-				e.logger.Debug("processing message", zap.String("topic", msg.Topic), zap.Int("worker", workerID))
-			}
+
+			e.logger.Debug("processing message", zap.String("topic", msg.Topic), zap.Int("worker", workerID))
+
 			return handler(msgCtx, msg)
 		})
 
@@ -155,9 +150,7 @@ func (e *Engine) consumeLoop(ctx context.Context, workerID int) {
 			return
 		}
 
-		if e.logger != nil {
-			e.logger.Error("consume loop error", zap.Error(err))
-		}
+		e.logger.Error("consume loop error", zap.Error(err))
 
 		select {
 		case <-time.After(backoff):

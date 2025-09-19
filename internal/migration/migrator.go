@@ -43,17 +43,15 @@ func New(cfg config.Config, conns *database.Connections, logger *zap.Logger) (*M
 func (m *Migrator) Up(ctx context.Context) error {
 	if err := goose.UpContext(ctx, m.db.DB, migrationsDir); err != nil {
 		if isNoMigrationErr(err) {
-			if m.logger != nil {
-				m.logger.Info("no migrations to apply")
-			}
+			m.logger.Info("no migrations to apply")
+
 			return nil
 		}
 		return err
 	}
 
-	if m.logger != nil {
-		m.logger.Info("migrations applied")
-	}
+	m.logger.Info("migrations applied")
+
 	return nil
 }
 
@@ -62,16 +60,14 @@ func (m *Migrator) Down(ctx context.Context, steps int, all bool) error {
 	if all {
 		if err := goose.DownToContext(ctx, m.db.DB, migrationsDir, 0); err != nil {
 			if isNoMigrationErr(err) {
-				if m.logger != nil {
-					m.logger.Info("no migrations to rollback")
-				}
+				m.logger.Info("no migrations to rollback")
+
 				return nil
 			}
 			return err
 		}
-		if m.logger != nil {
-			m.logger.Info("migrations rolled back", zap.String("mode", "all"))
-		}
+		m.logger.Info("migrations rolled back", zap.String("mode", "all"))
+
 		return nil
 	}
 
@@ -82,18 +78,16 @@ func (m *Migrator) Down(ctx context.Context, steps int, all bool) error {
 	for i := 0; i < steps; i++ {
 		if err := goose.DownContext(ctx, m.db.DB, migrationsDir); err != nil {
 			if isNoMigrationErr(err) {
-				if m.logger != nil {
-					m.logger.Info("no migrations to rollback")
-				}
+				m.logger.Info("no migrations to rollback")
+
 				return nil
 			}
 			return err
 		}
 	}
 
-	if m.logger != nil {
-		m.logger.Info("migrations rolled back", zap.Int("steps", steps))
-	}
+	m.logger.Info("migrations rolled back", zap.Int("steps", steps))
+
 	return nil
 }
 

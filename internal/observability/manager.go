@@ -163,9 +163,8 @@ func (m *Manager) createTraceExporter(ctx context.Context) (sdktrace.SpanExporte
 		defer cancel()
 		return otlptracegrpc.New(exporterCtx, clientOpts...)
 	default:
-		if m.logger != nil {
-			m.logger.Warn("unsupported trace exporter; tracing disabled", zap.String("exporter", m.cfg.TraceExporter))
-		}
+		m.logger.Warn("unsupported trace exporter; tracing disabled", zap.String("exporter", m.cfg.TraceExporter))
+
 		return nil, nil
 	}
 }
@@ -193,9 +192,8 @@ func (m *Manager) initMetrics(resource *sdkresource.Resource) error {
 			sdkmetric.WithResource(resource),
 		)
 	default:
-		if m.logger != nil {
-			m.logger.Warn("unsupported metrics exporter; metrics disabled", zap.String("exporter", m.cfg.MetricsExporter))
-		}
+		m.logger.Warn("unsupported metrics exporter; metrics disabled", zap.String("exporter", m.cfg.MetricsExporter))
+
 	}
 	return nil
 }

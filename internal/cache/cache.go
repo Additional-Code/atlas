@@ -30,9 +30,8 @@ var Module = fx.Provide(NewStore)
 func NewStore(lc fx.Lifecycle, cfg config.Config, logger *zap.Logger) (Store, error) {
 	switch cfg.Cache.Driver {
 	case "noop":
-		if logger != nil {
-			logger.Info("cache disabled; using noop store")
-		}
+		logger.Info("cache disabled; using noop store")
+
 		return noopStore{}, nil
 	case "redis":
 		return newRedisStore(lc, cfg.Cache, logger)
@@ -75,15 +74,13 @@ func newRedisStore(lc fx.Lifecycle, cfg config.Cache, logger *zap.Logger) (Store
 			if err := client.Ping(ctx).Err(); err != nil {
 				return fmt.Errorf("ping redis: %w", err)
 			}
-			if logger != nil {
-				logger.Info("redis cache connected", zap.String("addr", cfg.Redis.Addr))
-			}
+			logger.Info("redis cache connected", zap.String("addr", cfg.Redis.Addr))
+
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			if logger != nil {
-				logger.Info("closing redis cache")
-			}
+			logger.Info("closing redis cache")
+
 			return client.Close()
 		},
 	})

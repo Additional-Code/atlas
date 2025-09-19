@@ -68,9 +68,8 @@ func (k *kafkaClient) Consume(ctx context.Context, handler Handler) error {
 			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 				return err
 			}
-			if k.logger != nil {
-				k.logger.Error("kafka fetch failed", zap.Error(err))
-			}
+			k.logger.Error("kafka fetch failed", zap.Error(err))
+
 			time.Sleep(time.Second)
 			continue
 		}
@@ -94,17 +93,15 @@ func (k *kafkaClient) Consume(ctx context.Context, handler Handler) error {
 		}
 
 		if err := handler(ctx, wrapped); err != nil {
-			if k.logger != nil {
-				k.logger.Error("message handler failed", zap.Error(err), zap.Int64("offset", msg.Offset))
-			}
+			k.logger.Error("message handler failed", zap.Error(err), zap.Int64("offset", msg.Offset))
+
 			// Handler signals failure; skip commit to allow retry.
 			continue
 		}
 
 		if err := k.reader.CommitMessages(ctx, msg); err != nil {
-			if k.logger != nil {
-				k.logger.Warn("commit failed", zap.Error(err))
-			}
+			k.logger.Warn("commit failed", zap.Error(err))
+
 		}
 	}
 }
@@ -114,9 +111,8 @@ func (k *kafkaClient) Topic() string { return k.topic }
 // NewClient builds a messaging client based on configuration.
 func NewClient(lc fx.Lifecycle, cfg config.Config, logger *zap.Logger) (Client, error) {
 	if !cfg.Messaging.Enabled || cfg.Messaging.Driver == "noop" {
-		if logger != nil {
-			logger.Info("messaging disabled; using noop client")
-		}
+		logger.Info("messaging disabled; using noop client")
+
 		return noopClient{topic: cfg.Messaging.Kafka.Topic}, nil
 	}
 
@@ -160,9 +156,8 @@ func newKafkaClient(lc fx.Lifecycle, cfg config.Config, logger *zap.Logger) (Cli
 
 	lc.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
-			if logger != nil {
-				logger.Info("closing kafka client")
-			}
+			logger.Info("closing kafka client")
+
 			if err := writer.Close(); err != nil {
 				return err
 			}
@@ -178,7 +173,6 @@ type kafkaLogger struct {
 }
 
 func (k kafkaLogger) Printf(msg string, args ...interface{}) {
-	if k.logger != nil {
-		k.logger.Sugar().Debugf(msg, args...)
-	}
+	k.logger.Sugar().Debugf(msg, args...)
+
 }

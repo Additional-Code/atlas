@@ -40,8 +40,7 @@ func (s *Seeder) Orders(ctx context.Context) error {
 		}
 	}
 
-	if s.logger != nil {
-		s.logger.Info("seeded orders", zap.Int("count", len(samples)))
-	}
+	s.logger.Info("seeded orders", zap.Int("count", len(samples)))
+
 	return nil
 }
